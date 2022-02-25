@@ -18,18 +18,10 @@ use App\Http\Controllers\API\AuthController;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
-/*Route::get('login', [AuthController::class, 'login']);
-Route::post('/tokens/create', function (Request $request) {
-    $user = User::create([
-        'name' => 'walid',
-        'email' => 'walid12@gmail.com',
-        'password' => '12345678',
-    ]);
-    $token = $user->createToken('myapptoken')->plainTextToken;
-
-    return ['token' => $token->plainTextToken];
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('logout', [AuthController::class, 'logout']);
 });
-*/
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
