@@ -37,6 +37,7 @@ class AuthController extends Controller
             'name' => 'required|max:191',
             'email' => 'required|max:191|unique:users,email',
             'password' => 'required|min:8',
+            'role_as' => 'string',
 
         ]);
 
@@ -49,6 +50,7 @@ class AuthController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+                'role_as' => 'user',
             ]);
             $token = $user->createToken($user->email . '_Token')->plainTextToken;
             return response()->json([
@@ -72,6 +74,7 @@ class AuthController extends Controller
                 'validation_errors' => $validator->messages(),
             ]);
         } else {
+
             $user = User::where('email', $request->email)->first();
 
             if (!$user || !Hash::check($request->password, $user->password)) {
@@ -80,11 +83,17 @@ class AuthController extends Controller
                     'validation_errors' => $validator->messages(),
                 ]);
             } else {
-                $token = $user->createToken($user->email . '_Token')->plainTextToken;
+                if ($user->role_as === 'admin') {
+                    $token = $user->createToken($user->email . '_AdminToken', ['server:admin'])->plainTextToken;
+                } else {
+                    $token = $user->createToken($user->email . '_Token', ['server:user'])->plainTextToken;
+                }
+
                 return response()->json([
                     'status' => 200,
                     'username' => $user->name,
                     'token' => $token,
+                    'role' => $user->role_as,
                     'message' => 'Logged in Succefully',
                 ]);
             }
