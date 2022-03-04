@@ -116,4 +116,36 @@ class AuthController extends Controller
             'user' => $user
         ]);
     }
+    public function storeUser(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:191',
+            'email' => 'required|max:191|unique:users,email',
+            'password' => 'required|min:8',
+            'role_as' => 'string',
+
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 400,
+                'errors' => $validator->messages(),
+            ]);
+        } else {
+            $user = new User;
+            $user->name = $request->input('name');
+            $user->email = $request->input('email');
+            $user->password = $request->input('password');
+            $user->role_as = $request->input('role_as');
+            $user->save();
+
+
+            return response()->json([
+                'status' => 200,
+                'user' => $user,
+
+                'message' => 'registred Succefully',
+            ]);
+        }
+    }
 }
