@@ -20,6 +20,9 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 Route::get('allUsers', [AuthController::class, 'showUser']);
 Route::post('store-user', [AuthController::class, 'storeUser']);
+Route::get('edituser/{id}', [AuthController::class, 'edit']);
+Route::put('updateUser/{id}', [AuthController::class, 'update']);
+Route::delete('deleteUser/{id}', [AuthController::class, 'destroy']);
 Route::middleware('auth:sanctum', 'isAPIAdmin')->group(function () {
 
     return response()->json(['message' => 'You are in', 'status' => 200], 200);

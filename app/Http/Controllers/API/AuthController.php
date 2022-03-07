@@ -148,4 +148,80 @@ class AuthController extends Controller
             ]);
         }
     }
+    public function edit($_id)
+    {
+        $user = User::find($_id);
+        if ($user) {
+            return response()->json([
+                'status' => 200,
+                'user' => $user,
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'this user not found',
+            ]);
+        }
+    }
+    public function update(Request $request, $_id)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:191',
+            'email' => 'required|max:191|unique:users,email',
+
+            'role_as' => 'string',
+
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'errors' => $validator->messages(),
+            ]);
+        } else {
+            $user = User::find($_id);
+            if ($user) {
+                $user->name = $request->input('name');
+                $user->email = $request->input('email');
+
+                $user->role_as = $request->input('role_as');
+                $user->save();
+
+
+                return response()->json([
+                    'status' => 200,
+                    'user' => $user,
+
+                    'message' => 'user update Succefully',
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 404,
+
+
+                    'message' => 'No user Id found',
+                ]);
+            }
+        }
+    }
+    public function destroy($id)
+    {
+        $user = User::find($id);
+        if ($user) {
+            $user->delete();
+            return response()->json([
+                'status' => 200,
+
+
+                'message' => 'user deleted',
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+
+
+                'message' => 'No user Id found',
+            ]);
+        }
+    }
 }
