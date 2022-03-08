@@ -166,8 +166,8 @@ class AuthController extends Controller
     public function update(Request $request, $_id)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|max:191',
-            'email' => 'required|max:191|unique:users,email',
+            'name' => 'max:191',
+            'email' => 'max:191|email',
 
             'role_as' => 'string',
 
