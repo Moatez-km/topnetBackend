@@ -38,6 +38,7 @@ class AuthController extends Controller
             'email' => 'required|max:191|unique:users,email',
             'password' => 'required|min:8',
             'role_as' => 'string',
+            'statut' => 'string',
 
         ]);
 
@@ -51,6 +52,7 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role_as' => 'user',
+                'statut' => 'activer',
             ]);
             $token = $user->createToken($user->email . '_Token')->plainTextToken;
             return response()->json([
@@ -85,6 +87,15 @@ class AuthController extends Controller
             } else {
                 if ($user->role_as === 'admin') {
                     $token = $user->createToken($user->email . '_AdminToken', ['server:admin'])->plainTextToken;
+                }
+                if ($user->role_as === 'service formation') {
+                    $token = $user->createToken($user->email . '_AdminToken', ['server:service formation'])->plainTextToken;
+                }
+                if ($user->role_as === 'encadrant') {
+                    $token = $user->createToken($user->email . '_AdminToken', ['server:encadrant'])->plainTextToken;
+                }
+                if ($user->role_as === 'chef departement') {
+                    $token = $user->createToken($user->email . '_AdminToken', ['server:chef departement'])->plainTextToken;
                 } else {
                     $token = $user->createToken($user->email . '_Token', ['server:user'])->plainTextToken;
                 }
@@ -122,7 +133,8 @@ class AuthController extends Controller
             'name' => 'required|max:191',
             'email' => 'required|max:191|unique:users,email',
             'password' => 'required|min:8',
-            'role_as' => 'string',
+            'role_as' => 'required|string',
+            'statut' => 'required|string',
 
         ]);
 
@@ -137,6 +149,7 @@ class AuthController extends Controller
             $user->email = $request->input('email');
             $user->password = $request->input('password');
             $user->role_as = $request->input('role_as');
+            $user->statut = $request->input('statut');
             $user->save();
 
 
@@ -170,6 +183,7 @@ class AuthController extends Controller
             'email' => 'max:191|email',
 
             'role_as' => 'string',
+            'statut' => 'string',
 
         ]);
 
@@ -185,6 +199,7 @@ class AuthController extends Controller
                 $user->email = $request->input('email');
 
                 $user->role_as = $request->input('role_as');
+                $user->statut = $request->input('statut');
                 $user->save();
 
 
@@ -214,6 +229,36 @@ class AuthController extends Controller
 
 
                 'message' => 'user deleted',
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+
+
+                'message' => 'No user Id found',
+            ]);
+        }
+    }
+    public function changeStatut($id)
+    {
+        $user = User::find($id);
+        if ($user->statut == "activer") {
+            $user->statut = "désactiver";
+            $user->save();
+            return response()->json([
+                'status' => 200,
+                'user' => $user,
+
+                'message' => 'user sera désactiver',
+            ]);
+        } else if ($user->statut == "désactiver") {
+            $user->statut = "activer";
+            $user->save();
+            return response()->json([
+                'status' => 200,
+
+                'user' => $user,
+                'message' => 'user sera activer',
             ]);
         } else {
             return response()->json([
