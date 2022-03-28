@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Models\User;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 
 
@@ -39,6 +40,7 @@ class AuthController extends Controller
             'password' => 'required|min:8',
             'role_as' => 'string',
             'statut' => 'string',
+            'firstlogin' => 'string',
 
         ]);
 
@@ -53,12 +55,14 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
                 'role_as' => 'user',
                 'statut' => 'activer',
+                'firstlogin' => Carbon::now(),
             ]);
             $token = $user->createToken($user->email . '_Token')->plainTextToken;
             return response()->json([
                 'status' => 200,
                 'username' => $user->name,
                 'token' => $token,
+                'user' => $user,
                 'message' => 'registred Succefully',
             ]);
         }
@@ -87,24 +91,19 @@ class AuthController extends Controller
             } else {
                 if ($user->role_as === 'admin') {
                     $token = $user->createToken($user->email . '_AdminToken', ['server:admin'])->plainTextToken;
-                }
-                if ($user->role_as === 'service formation') {
-                    $token = $user->createToken($user->email . '_AdminToken', ['server:service formation'])->plainTextToken;
-                }
-                if ($user->role_as === 'encadrant') {
-                    $token = $user->createToken($user->email . '_AdminToken', ['server:encadrant'])->plainTextToken;
-                }
-                if ($user->role_as === 'chef departement') {
-                    $token = $user->createToken($user->email . '_AdminToken', ['server:chef departement'])->plainTextToken;
-                } else {
+                } else if ($user->role_as === 'user') {
                     $token = $user->createToken($user->email . '_Token', ['server:user'])->plainTextToken;
+                } else if ($user->role_as === 'service formation') {
+                    $token = $user->createToken($user->email . '_ServiceToken', ['server:service formation'])->plainTextToken;
                 }
 
                 return response()->json([
                     'status' => 200,
+                    'statut' => $user->statut,
                     'username' => $user->name,
                     'token' => $token,
                     'role' => $user->role_as,
+                    'firstlogin' => $user->firstlogin,
                     'message' => 'Logged in Succefully',
                 ]);
             }
@@ -134,9 +133,11 @@ class AuthController extends Controller
             'email' => 'required|max:191|unique:users,email',
             'password' => 'required|min:8',
             'role_as' => 'required|string',
-            'statut' => 'required|string',
+            'statut' => 'string',
+            'firstlogin' => 'string',
 
         ]);
+
 
         if ($validator->fails()) {
             return response()->json([
@@ -144,18 +145,20 @@ class AuthController extends Controller
                 'errors' => $validator->messages(),
             ]);
         } else {
-            $user = new User;
-            $user->name = $request->input('name');
-            $user->email = $request->input('email');
-            $user->password = $request->input('password');
-            $user->role_as = $request->input('role_as');
-            $user->statut = $request->input('statut');
-            $user->save();
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role_as' => $request->role_as,
+                'statut' => 'activer',
+                'firstlogin' => '',
+            ]);
 
-
+            $token = $user->createToken($user->email . '_Token')->plainTextToken;
             return response()->json([
                 'status' => 200,
                 'user' => $user,
+                'token' => $token,
 
                 'message' => 'registred Succefully',
             ]);

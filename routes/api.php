@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\PasswordController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -24,7 +26,8 @@ Route::get('edituser/{id}', [AuthController::class, 'edit']);
 Route::put('updateUser/{id}', [AuthController::class, 'update']);
 Route::delete('deleteUser/{id}', [AuthController::class, 'destroy']);
 Route::put('changeStatut/{id}', [AuthController::class, 'changeStatut']);
-
+Route::post('forgot', [\App\Http\Controllers\PasswordController::class, 'forgot']);
+Route::post('reset', [\App\Http\Controllers\PasswordController::class, 'reset']);
 
 Route::middleware('auth:sanctum', 'isAPIAdmin')->group(function () {
 
