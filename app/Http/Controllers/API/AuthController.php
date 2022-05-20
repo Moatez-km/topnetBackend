@@ -72,7 +72,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
 
-            'email' => 'required|max:191',
+            'loginTopnet' => 'required|max:191',
             'password' => 'required|min:8',
 
         ]);
@@ -82,7 +82,7 @@ class AuthController extends Controller
             ]);
         } else {
 
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('loginTopnet', $request->loginTopnet)->first();
 
             if (!$user || !Hash::check($request->password, $user->password)) {
                 return response()->json([
@@ -92,10 +92,10 @@ class AuthController extends Controller
             } else {
                 if ($user->role_as === 'admin') {
                     $token = $user->createToken($user->email . '_AdminToken', ['server:admin'])->plainTextToken;
-                } else if ($user->role_as === 'user') {
-                    $token = $user->createToken($user->email . '_Token', ['server:user'])->plainTextToken;
                 } else if ($user->role_as === 'service formation') {
                     $token = $user->createToken($user->email . '_ServiceToken', ['server:service formation'])->plainTextToken;
+                } else if ($user->role_as === 'encadrant') {
+                    $token = $user->createToken($user->email . '_EncadrantToken', ['server:encadrant'])->plainTextToken;
                 }
 
                 return response()->json([
@@ -122,7 +122,7 @@ class AuthController extends Controller
     }
     public function showUser()
     {
-        $user = User::all();
+        $user = User::where([['role_as', '<>', 'admin']])->get();;
         return response()->json([
             'status' => 200,
             'user' => $user
@@ -229,7 +229,9 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'max:191',
             'email' => 'max:191|email',
-
+            'matricule' => 'max:4|unique:users',
+            'description' => 'max:191',
+            'loginTopnet' => 'max:191',
             'role_as' => 'string',
             'statut' => 'string',
 
@@ -245,7 +247,9 @@ class AuthController extends Controller
             if ($user) {
                 $user->name = $request->input('name');
                 $user->email = $request->input('email');
-
+                $user->matricule = $request->input('matricule');
+                $user->description = $request->input('description');
+                $user->loginTopnet = $request->input('loginTopnet');
                 $user->role_as = $request->input('role_as');
                 $user->statut = $request->input('statut');
                 $user->save();

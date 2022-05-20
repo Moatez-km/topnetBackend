@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\Stagiaire;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
@@ -31,7 +32,9 @@ Route::post('forgot', [\App\Http\Controllers\PasswordController::class, 'forgot'
 Route::post('reset', [\App\Http\Controllers\PasswordController::class, 'reset']);
 Route::get('get-profile', [AuthController::class, 'getCurentUser']);
 
-
+//Stagiaire
+Route::post('/stagiaire/register', [\App\Http\Controllers\API\StagiaireController::class, 'register']);
+Route::post('/stagiaire/login', [\App\Http\Controllers\API\StagiaireController::class, 'login']);
 //Question
 Route::post('/addQuestion', [\App\Http\Controllers\QuestionController::class, 'addquestion']);
 Route::get('/allQuestions', [\App\Http\Controllers\QuestionController::class, 'showQuestion']);
